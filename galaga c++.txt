@@ -1,0 +1,569 @@
+#include <conio.h>
+#include <windows.h>
+#include <ctime>
+#include <iostream>
+
+using namespace System;
+using namespace std;
+
+const int sizey = 23;
+const int sizex = 40;
+char mapa[sizey][sizex];
+
+
+void Inicio() {
+	cout << "***********************BIENVENIDO AL JUEGO GALAGA***********************" << endl;
+	cout << "*                        `. ___                                        *" << endl;
+	cout << "*                       __,' __`.                _..----....____       *" << endl;
+	cout << "*           __...--.'``;.   ,.   ;``--..__     .'    ,-._    _.-'      *" << endl;
+	cout << "*     _..-''-------'   `'   `'   `'     O ``-''._   (,;') _,'          *" << endl;
+	cout << "*   ,'________________                          \`-._`-','              *" << endl;
+	cout << "*    `._              ```````````------...___   '-.._'-:               *" << endl;
+	cout << "*       ```--.._      ,.                     ````--...__\-.             *" << endl;
+	cout << "*               `.--. `-`                       ____    |  |`          *" << endl;
+	cout << "*                 `. `.                       ,'`````.  ;  ;`          *" << endl;
+	cout << "*                   `._`.        __________   `.      \'__/`            *" << endl;
+	cout << "*                      `-:._____/______/___/____`.     \  `             *" << endl;
+	cout << "*                                  |       `._    `.    \               *" << endl;
+	cout << "*                                  `._________`-.   `.   `.___         *" << endl;
+	cout << "*                                                     `------'`        *" << endl;
+	cout << "* Presiona I para ver las instrucciones                                *" << endl;
+	cout << "* Presiona c para ver Creditos                                         *" << endl;
+	cout << "* Presiona P para jugar                                                *" << endl;
+	cout << "*                                                                      *" << endl;
+	cout << "************************************************************************" << endl;
+
+
+}
+void Creditos() {
+	cout << "***************CREDITOS***************" << endl;
+	cout << "*                                    *" << endl;
+	cout << "*     Oscar Escobedo Suyon           *" << endl;
+	cout << "*                                    *" << endl;
+	cout << "*     Presiona X para regresar       *" << endl;
+	cout << "*                                    *" << endl;
+	cout << "**************************************" << endl;
+}
+void imprimirVidas(int n) {
+	for (int i = 0; i < n; i++) {
+		cout << " *";
+	}
+}
+void Instrucciones() {
+	cout << "***************INSTRUCCIONES***************" << endl;
+	cout << "*                                         *" << endl;
+	cout << "*    -Tecla A, mover a la izquierda       *" << endl;
+	cout << "*     al personaje.                       *" << endl;
+	cout << "*    -Tecla D, mover a la derecha al      *" << endl;
+	cout << "*     personaje.                          *" << endl;
+	cout << "*    -Tecla W para disparar               *" << endl;
+	cout << "*                                         *" << endl;
+	cout << "*     Presiona X para regresar            *" << endl;
+	cout << "*                                         *" << endl;
+	cout << "*******************************************" << endl;
+}
+int main() {
+	int x, y, yi;
+	
+	//ASIGNACION DE CARACTERES
+	char nave = char(254);
+	char balaJugador = 202;
+	char enemy = char(206);
+	char comandanteEscudo = char(69);
+	char comandante = char(206);  //400 puntos
+	char mariposa = char(175);  //160 puntos 
+	char avispa = char(184);   //100 puntos
+
+	//PIBOTE
+	char pibote = 'o';
+	int cantidadPibotes = 0;
+
+	int disparoNaveListo = 1;
+	int disparoEnemigoListo = 0;
+	char balaEnemiga = char(190);
+	char explosion = 'X';
+	int score = 0; //2500 para pasar de nivel
+
+	//cronometro
+	int minutos = 0;
+	int segundos = 0;
+	//
+	string flagEstadoJuego = "EN JUEGO";
+	int nivel = 1;
+	
+	//REPORTE
+	int scoreTotal = 0;
+	int tiempoEmpleado = 0;
+	srand(time(NULL));
+	char tecla;
+	while (tecla != 'p' && tecla != 'P'){
+		Console::SetWindowSize(80, 21);
+		Inicio();
+		tecla = getch();
+		system("cls");
+		if (tecla == 'I' || tecla == 'i') {
+			while (tecla != 'x' && tecla != 'X') {
+				system("cls");
+				Instrucciones();
+				tecla = getch();
+			}
+		}
+		if (tecla == 'C' || tecla == 'c') {
+			while (tecla != 'x' && tecla != 'X') {
+				system("cls");
+				Creditos();
+				tecla = getch();
+			}
+		}
+		system("cls");
+	}
+	//Mapa 
+	Console::SetWindowSize(sizex + 10, sizey +4);
+	char tiposEnemigos[] = { comandante,avispa,mariposa };
+	int dYEnemigo = 1;
+
+	if (nivel == 1) {
+		for (int x = 0; x < sizex; x++) {
+			for (int y = 0; y < sizey; y++) {
+				if (((x > 4 && x < 10) || x > 31 && x < sizex - 3) && (y == 2 || y == 4)) {
+					mapa[y][x] = comandante;
+					mapa[y][x] = comandanteEscudo;
+				}
+				else if ((y == 4 || y == 6) && ((x > 11 && x < 17) || x > 24 && x < sizex - 10)) {
+					mapa[y][x] = avispa;
+				}
+				else if ((y == 7) && x > (sizex / 2) - 2 && x < (sizex / 2) + 3) {
+					mapa[y][x] = mariposa;
+				}
+				else if (y== 4 && x == 1) {
+					mapa[y][x] = pibote;
+				}
+				else if (y == 2 && x == 1) {
+					mapa[y][x] = pibote;
+				}
+				else {
+					mapa[y][x] = ' ';
+				}
+			}
+		}
+	}
+	
+
+	//Posicion inicial de la nave
+	mapa[sizey - 1][sizex / 2] = nave;
+
+	int i = 1;
+	char teclaPresionada;
+	//int enemigosTotales = totalEnemies;
+	int nVidas = 4;
+
+	while (flagEstadoJuego == "EN JUEGO") {
+		disparoNaveListo++;
+		system("cls");
+		cout << "PTOS: " << score;
+		cout << " Nvl: " << nivel;
+		cout << "  VIDAS: ";
+		imprimirVidas(nVidas);
+		if (segundos<60) {
+			segundos++;
+		}
+		if (segundos == 60) {
+			minutos++;
+			segundos = 0;
+		}
+		cout << "   Tiempo: " << minutos << ":" << segundos << endl;
+		//Imprimir mapa
+		for (y = 0; y < sizey; y++) {
+			cout << char(177);
+			cout << char(178);
+			for (x = 0; x < sizex; x++) {
+				//Asignar color a cada caracter
+				if (mapa[y][x] == comandanteEscudo) {
+					SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 11);
+					cout << mapa[y][x];
+				}
+				else if (mapa[y][x] == avispa) {
+					SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 5);
+					cout << mapa[y][x];
+				}
+				else if (mapa[y][x] == comandante) {
+					SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 2);
+					cout << mapa[y][x];
+				}
+				else if (mapa[y][x] == mariposa) {
+					SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 6);
+					cout << mapa[y][x];
+				}
+				else {
+					SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
+					cout << (mapa[y][x]);
+				}
+			}
+			cout << char(178);
+			cout << char(177);
+			cout << ("\n");
+		}
+		//Imprimir linea de  ===== 
+		for (int i = 0; i < sizex + 4; i++) {
+			cout << char(205);
+		}
+		//Dibuja las Balas de los enemigos
+		for (x = 0; x < sizex; x++) {
+			for (y = sizey - 1; y >= 0; y--) {
+				if (i % 2 == 0 && mapa[y][x] == balaEnemiga
+					&& (mapa[y + 1][x] != comandante && mapa[y + 1][x] != comandanteEscudo)) {
+					mapa[y + 1][x] = balaEnemiga;
+					mapa[y][x] = ' ';
+				}
+				else if (i % 2 == 0 && mapa[y][x] == balaEnemiga
+					&& (mapa[y + 1][x] == comandante || mapa[y + 1][x] == comandanteEscudo)) {
+					mapa[y][x] = ' ';
+				}
+				//Movimiento de los enemigos (+j)
+				if (dYEnemigo == 1) {
+					if (mapa[sizey - 7][1] != pibote || y < sizey-7) {
+						if (mapa[y][x] == pibote) {
+							mapa[y + dYEnemigo][x] = mapa[y][x];
+							mapa[y][x] = ' ';
+							mapa[y - 1][x] = ' ';
+						}
+						if (mapa[y][x] == comandante) {
+							mapa[y][x] = ' ';
+							mapa[y + dYEnemigo][x] = comandante;
+						}
+						else if (mapa[y][x] == mariposa) {
+							mapa[y][x] = ' ';
+							mapa[y + dYEnemigo][x] = mariposa;
+						}
+						else if (mapa[y][x] == avispa) {
+							mapa[y][x] = ' ';
+							mapa[y + dYEnemigo][x] = avispa;
+						}
+						else if (mapa[y][x] == comandanteEscudo) {
+							mapa[y][x] = ' ';
+							mapa[y + dYEnemigo][x] = comandanteEscudo;
+						}
+					}
+					else {
+						dYEnemigo = -1;
+					}
+				}
+			}
+		}
+		//
+		for (x = 0; x < sizex; x++) {
+			for (y = 0; y < sizey; y++) {
+				//SELECCIONA AL ENEMIGO QUE VA A DISPARAR
+				if ((i % 5) == 0 && (mapa[y][x] == comandanteEscudo || mapa[y][x] == enemy)
+					&& (rand() % 15) > 13 && mapa[y + 1][x] != balaJugador) {
+					//
+					for (yi = y + 1; yi < sizey; yi++) {
+						//DISPARO ENEMIGO
+						//NO REALIZA DISPARO SI HAY UN ENEMIGO DEBAJO
+						if (mapa[yi][x] == enemy || mapa[yi][x] == comandanteEscudo) {
+							disparoEnemigoListo = 0;
+							break;
+						}
+						disparoEnemigoListo = 1;
+					}
+					//
+					if (disparoEnemigoListo) {
+						mapa[y + 1][x] = balaEnemiga;
+					}
+				}
+				//Colision bala con enemigo
+				if (mapa[y][x] == balaJugador && ((mapa[y - 1][x] == enemy || mapa[y - 1][x] == comandante || mapa[y - 1][x] == mariposa || mapa[y-1][x] == avispa)||(mapa[y][x] == enemy || mapa[y][x] == comandante || mapa[y][x] == mariposa || mapa[y][x] == avispa)|| mapa[y + 1][x] == enemy || mapa[y + 1][x] == comandante || mapa[y + 1][x] == mariposa || mapa[y + 1][x] == avispa)) {
+					if (mapa[y - 1][x] == comandante || mapa[y + 1][x] == comandante || mapa[y][x] == comandante) {
+						score += 400;
+					}
+					else if (mapa[y - 1][x] == avispa || mapa[y + 1][x] == avispa || mapa[y][x] == avispa) {
+						score += 160;
+					}
+					else if (mapa[y - 1][x] == mariposa|| mapa[y+1][x] == mariposa || mapa[y][x] == mariposa) {
+						score += 100;
+					}
+					mapa[y][x] = ' ';
+					mapa[y - 1][x] = explosion;
+					if (score >= 2500) {
+						if (nivel <= 4) {
+							tiempoEmpleado += (segundos + minutos * 60);
+							segundos = 0;
+							minutos = 0;
+							scoreTotal += score;
+							score = 0;
+							nivel++;
+							if (nivel == 2) {
+								for (int x = 0; x < sizex; x++) {
+									for (int y = 0; y < sizey; y++) {
+										if ((x%2 ==0 && y== 2 && x>2)) {
+											mapa[y][x] = comandante;
+											mapa[y][x] = comandanteEscudo;
+										}
+										else if ((y == 4 || y == 6) && (x > (sizex/2)-6 && x < (sizex / 2)+7)) {
+											mapa[y][x] = avispa;
+										}
+										else if ((y == 7) && x >(sizex / 2) - 2 && x < (sizex / 2) + 3) {
+											mapa[y][x] = mariposa;
+										}
+										else if (y == 4 && x == 1) {
+											mapa[y][x] = pibote;
+										}
+										else if (y == 2 && x == 1) {
+											mapa[y][x] = pibote;
+										}
+										else {
+											mapa[y][x] = ' ';
+										}
+									}
+								}
+								//POSICION INICIAL DE LA NAVE
+								mapa[sizey - 1][sizex / 2] = nave;
+							}
+							else if (nivel == 3) {
+								for (int x = 0; x < sizex; x++) {
+									for (int y = 0; y < sizey; y++) {
+										if ((x % 4 == 0 && y == 2 && x > 2)) {
+											mapa[y][x] = comandante;
+											mapa[y][x] = comandanteEscudo;
+										}
+										else if ((y == 4) && (x % 4 == 0 && x>2)) {
+											mapa[y][x] = avispa;
+										}
+										else if ((y == 6) && (x % 4 == 0 && x>2)) {
+											mapa[y][x] = mariposa;
+										}
+										else if (y == 4 && x == 1) {
+											mapa[y][x] = pibote;
+										}
+										else if (y == 2 && x == 1) {
+											mapa[y][x] = pibote;
+										}
+										else {
+											mapa[y][x] = ' ';
+										}
+									}
+								}
+								//POSICION INICIAL DE LA NAVE
+								mapa[sizey - 1][sizex / 2] = nave;
+							}
+							else if (nivel == 4) {
+								for (int x = 0; x < sizex; x++) {
+									for (int y = 0; y < sizey; y++) {
+										
+										if (y==2 && x%2 == 0 && x>2 && x<sizex-5)  {
+											if (x>2 && x<7) {
+												mapa[y][x] = comandante;
+												mapa[y][x] = comandanteEscudo;
+											}
+											else if (x>7 && x<18) {
+												mapa[y][x] = avispa;
+											}
+											else if (x>18 && x<sizex-5) {
+												mapa[y][x] = mariposa;
+											}
+										}
+										else if (y == 4 && x%3 == 0 && x>2 && x<sizex - 5) {
+											if (x>2 && x<7) {
+												mapa[y][x] = comandante;
+												mapa[y][x] = comandanteEscudo;
+											}
+											else if (x>7 && x<18) {
+												mapa[y][x] = avispa;
+											}
+											else if (x>18 && x<sizex - 5) {
+												mapa[y][x] = mariposa;
+											}
+										}
+										else if (y == 6 && x % 2 == 0 && x>2 && x<sizex - 5) {
+											if (x>2 && x<7) {
+												mapa[y][x] = comandante;
+												mapa[y][x] = comandanteEscudo;
+											}
+											else if (x>7 && x<18) {
+												mapa[y][x] = avispa;
+											}
+											else if (x>18 && x<sizex - 5) {
+												mapa[y][x] = mariposa;
+											}
+										}
+										else if (y == 8 && x % 3 == 0 && x>2 && x<sizex - 5) {
+											if (x>2 && x<7) {
+												mapa[y][x] = comandante;
+												mapa[y][x] = comandanteEscudo;
+											}
+											else if (x>7 && x<18) {
+												mapa[y][x] = avispa;
+											}
+											else if (x>18 && x<sizex - 5) {
+												mapa[y][x] = mariposa;
+											}
+										}
+										else if (y == 4 && x == 1) {
+											mapa[y][x] = pibote;
+										}
+										else if (y == 2 && x == 1) {
+											mapa[y][x] = pibote;
+										}
+										else {
+											mapa[y][x] = ' ';
+										}
+									}
+								}
+								//POSICION INICIAL DE LA NAVE
+								mapa[sizey - 1][sizex / 2] = nave;
+							}
+						}
+						else {
+							flagEstadoJuego = "GANADOR";
+						}
+					}
+				}
+				//Colision bala con escudo Enemigo
+				else if (mapa[y][x] == balaJugador && mapa[y - 1][x] == comandanteEscudo) {
+					mapa[y][x] = ' ';
+					mapa[y - 1][x] = enemy;
+					score += 50;
+				}
+				//Colision bala con bala Enemiga
+				else if (mapa[y][x] == balaJugador && mapa[y - 1][x] == balaEnemiga) {
+					mapa[y - 1][x] = ' ';
+					mapa[y][x] = ' ';
+					mapa[y + 1][x] = ' ';
+				}
+				// Elimina los enemigos destruidos				
+				else if (mapa[y][x] == explosion) {
+					mapa[y][x] = ' ';
+				}
+				//Colision con mi nave
+				else if ((i + 1) % 2 == 0 && (mapa[y][x] == balaEnemiga || mapa[y-1][x] == balaEnemiga) && mapa[y + 1][x] == nave) {
+					mapa[y][x] == ' ';
+					mapa[y][x+1] == ' ';
+					mapa[y][x-1] == ' ';
+					if (nVidas > 0) {
+						nVidas -= 1;
+						imprimirVidas(nVidas);
+					}
+					if (nVidas == 0) {
+						mapa[sizey - 1][sizex / 2] = explosion;
+						tiempoEmpleado += (segundos + minutos * 60);
+						flagEstadoJuego = "PERDEDOR";
+					}
+					mapa[sizey - 1][sizex / 2] = nave;
+				}
+				//Movimiento de la bala 
+				else if (mapa[y][x] == balaJugador && mapa[y - 1][x] != balaEnemiga) {
+					mapa[y][x] = ' ';
+					mapa[y - 1][x] = balaJugador;
+				}
+				//Movimiento de los enemigos (-j)
+				if (dYEnemigo == -1) {
+					if (mapa[2][1] != pibote || y > 2) {
+						if (mapa[y][x] == pibote) {
+							mapa[y][x] = ' ';
+							mapa[y + dYEnemigo][x] = pibote;
+						}
+						if (mapa[y][x] == (comandante)) {
+							mapa[y][x] = ' ';
+							mapa[y + dYEnemigo][x] = comandante;
+						}
+						else if (mapa[y][x] == (mariposa)) {
+							mapa[y][x] = ' ';
+							mapa[y + dYEnemigo][x] = mariposa;
+						}
+						else if (mapa[y][x] == (avispa)) {
+							mapa[y][x] = ' ';
+							mapa[y + dYEnemigo][x] = avispa;
+						}
+						else if (mapa[y][x] == comandanteEscudo) {
+							mapa[y][x] = ' ';
+							mapa[y + dYEnemigo][x] = comandanteEscudo;
+						}
+					}
+					else {
+						dYEnemigo = 1;
+						
+					}
+				}
+			}
+		}
+		// 5min sino pierde
+		if (segundos == 300) {
+			flagEstadoJuego = "PERDEDOR";
+		}
+		//Manejo Nave
+		if (kbhit()) {
+			teclaPresionada = getch();
+		}
+		else {
+			teclaPresionada = ' ';
+		}
+		if (teclaPresionada == 'a' || teclaPresionada == 'A') {
+			for (int x = 0; x < sizex; x++) {
+				for (int y = 0; y < sizey; y++) {
+					if (mapa[y][x] == nave) {
+						if (x > 3) {
+							mapa[y][x - 1] = nave;
+							mapa[y][x] = ' ';
+						}
+					}
+				}
+			}
+		}
+		if (teclaPresionada == 'd' || teclaPresionada == 'D') {
+			for (x = sizex - 1; x > 0; x = x - 1) {
+				if (mapa[sizey - 1][x - 1] == nave) {
+					mapa[sizey - 1][x] = nave;
+					mapa[sizey - 1][x - 1] = ' ';
+				}
+			}
+		}
+		if ((teclaPresionada == 'w' || teclaPresionada == 'W') && disparoNaveListo > 4) {
+			for (int x = 0; x < sizex; x++) {
+				for (int y = 0; y < sizey; y++) {
+					if (mapa[y][x] == nave) {
+						mapa[y - 1][x] = balaJugador;
+						disparoNaveListo = 0;
+					}
+				}
+			}
+		}
+		i++;
+		Sleep(50);
+	}
+	//////////////////////////////////////////////////
+	//FIN DEL JUEGO
+	//////////////////////////////////////////////////
+	
+	system("cls");
+	int minutosT = 0;
+	int segundosT = 0;
+	minutos = tiempoEmpleado / 60;
+	segundos = tiempoEmpleado % 60;
+
+	if (flagEstadoJuego == "GANADOR") {
+		cout << ("\n\n\tYOU WIN!") << endl;
+		Sleep(800);
+		cout << endl;
+		cout << endl;
+		cout << endl;
+		Sleep(800);
+		cout << ("\n");
+		Sleep(800);
+		cout << "\n \n \t\t Puntaje Total: " << score << endl;
+		Sleep(800);
+		cout << "\n \n \t\t Vidas Restantes: " << nVidas << endl;
+		Sleep(800);
+		cout << "\n \n \t\t Tiempo empleado: " << minutos << ":" << segundos << endl;
+		getch();
+		Sleep(1000);
+	}
+	else if (flagEstadoJuego == "PERDEDOR") {
+		cout << ("\n\n\tYOU LOSE") << endl;
+		Sleep(800);
+		cout<<"\n\n\t Final Score: " << scoreTotal;
+		Sleep(800);
+		cout << "\n\n\t Tiempo empleado: " << minutos << ":" << segundos << endl;
+		getch();
+		Sleep(1000);
+	}
+}
